@@ -1,0 +1,234 @@
+diff --git a/html/package.json b/html/package.json
+index d8cf47f..d4cf822 100644
+--- a/html/package.json
++++ b/html/package.json
+@@ -28,2 +28,3 @@
+     "eslint": "^8.57.0",
++    "eslint-plugin-n": "^17.23.1",
+     "eslint-plugin-node": "^11.1.0",
+@@ -47,2 +48,3 @@
+     "typescript": "^5.3.3",
++    "uglify-js": "^3.19.3",
+     "util": "^0.12.5",
+diff --git a/html/webpack.config.js b/html/webpack.config.js
+index 18bfcf3..5facfee 100644
+--- a/html/webpack.config.js
++++ b/html/webpack.config.js
+@@ -95,5 +95,14 @@ const prodConfig = {
+     optimization: {
+-        minimizer: [new TerserPlugin(), new CssMinimizerPlugin()],
++        minimizer: [
++            new TerserPlugin({
++                minify: TerserPlugin.uglifyJsMinify,
++                terserOptions: { compress: { passes: 10 }, output: { comments: false } },
++                extractComments: false,
++            }),
++            new CssMinimizerPlugin({
++                minimizerOptions: { level: 2 },
++                minify: CssMinimizerPlugin.cleanCssMinify,
++            }),
++        ],
+     },
+-    devtool: 'source-map',
+ };
+diff --git a/html/yarn.lock b/html/yarn.lock
+index 488ef92..dc3d449 100644
+--- a/html/yarn.lock
++++ b/html/yarn.lock
+@@ -48,2 +48,13 @@ __metadata:
+ 
++"@eslint-community/eslint-utils@npm:^4.1.2, @eslint-community/eslint-utils@npm:^4.5.0":
++  version: 4.9.0
++  resolution: "@eslint-community/eslint-utils@npm:4.9.0"
++  dependencies:
++    eslint-visitor-keys: ^3.4.3
++  peerDependencies:
++    eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
++  checksum: ae9b98eea006d1354368804b0116b8b45017a4e47b486d1b9cfa048a8ed3dc69b9b074eb2b2acb14034e6897c24048fd42b6a6816d9dc8bb9daad79db7d478d2
++  languageName: node
++  linkType: hard
++
+ "@eslint-community/eslint-utils@npm:^4.2.0, @eslint-community/eslint-utils@npm:^4.4.0":
+@@ -59,2 +70,9 @@ __metadata:
+ 
++"@eslint-community/regexpp@npm:^4.11.0":
++  version: 4.12.2
++  resolution: "@eslint-community/regexpp@npm:4.12.2"
++  checksum: 1770bc81f676a72f65c7200b5675ff7a349786521f30e66125faaf767fde1ba1c19c3790e16ba8508a62a3933afcfc806a893858b3b5906faf693d862b9e4120
++  languageName: node
++  linkType: hard
++
+ "@eslint-community/regexpp@npm:^4.4.0":
+@@ -3654,2 +3672,12 @@ __metadata:
+ 
++"enhanced-resolve@npm:^5.17.1":
++  version: 5.18.4
++  resolution: "enhanced-resolve@npm:5.18.4"
++  dependencies:
++    graceful-fs: ^4.2.4
++    tapable: ^2.2.0
++  checksum: 8e8a1e8efd2361d32c8a4ea00523b52311ea47e66abebda159f1e60d8849161550821f44fde51fca20261b70a0b3f61dec6d4425816934a2adb65a9ea0574ec8
++  languageName: node
++  linkType: hard
++
+ "entities@npm:^1.1.1":
+@@ -3871,2 +3899,13 @@ __metadata:
+ 
++"eslint-compat-utils@npm:^0.5.1":
++  version: 0.5.1
++  resolution: "eslint-compat-utils@npm:0.5.1"
++  dependencies:
++    semver: ^7.5.4
++  peerDependencies:
++    eslint: ">=6.0.0"
++  checksum: beccf2a5bd7c7974e3584b269f8a02667c83bca64cfd4c866f3055867f187e78b00ee826721765bdee9b13efaaa248f8068c581f7bb05803e8f47abb116e68fc
++  languageName: node
++  linkType: hard
++
+ "eslint-config-prettier@npm:9.0.0":
+@@ -3882,2 +3921,15 @@ __metadata:
+ 
++"eslint-plugin-es-x@npm:^7.8.0":
++  version: 7.8.0
++  resolution: "eslint-plugin-es-x@npm:7.8.0"
++  dependencies:
++    "@eslint-community/eslint-utils": ^4.1.2
++    "@eslint-community/regexpp": ^4.11.0
++    eslint-compat-utils: ^0.5.1
++  peerDependencies:
++    eslint: ">=8"
++  checksum: c30fc6bd94f86781eaf34dec59e7d52ee68b8a12305ae76222d8d0ff6cc0a5c94e8306ed079b4234d64f7464bcd162a5fef59e7cc69a978ba77950e0395c79f8
++  languageName: node
++  linkType: hard
++
+ "eslint-plugin-es@npm:^3.0.0":
+@@ -3894,2 +3946,21 @@ __metadata:
+ 
++"eslint-plugin-n@npm:^17.23.1":
++  version: 17.23.1
++  resolution: "eslint-plugin-n@npm:17.23.1"
++  dependencies:
++    "@eslint-community/eslint-utils": ^4.5.0
++    enhanced-resolve: ^5.17.1
++    eslint-plugin-es-x: ^7.8.0
++    get-tsconfig: ^4.8.1
++    globals: ^15.11.0
++    globrex: ^0.1.2
++    ignore: ^5.3.2
++    semver: ^7.6.3
++    ts-declaration-location: ^1.0.6
++  peerDependencies:
++    eslint: ">=8.23.0"
++  checksum: fb3fe778f999ea22fd4a41b8eb9ac8487add4e79ea99d722b41c7777588baae76f691d9909b1b141de639e8a08f22648aa83a4c88ec2c7269ea049993f6ed8cf
++  languageName: node
++  linkType: hard
++
+ "eslint-plugin-node@npm:11.1.0, eslint-plugin-node@npm:^11.1.0":
+@@ -4930,2 +5001,11 @@ __metadata:
+ 
++"get-tsconfig@npm:^4.8.1":
++  version: 4.13.0
++  resolution: "get-tsconfig@npm:4.13.0"
++  dependencies:
++    resolve-pkg-maps: ^1.0.0
++  checksum: b3cfa1316dd8842e038f6a3dc02ae87d9f3a227f14b79ac4b1c81bf6fc75de4dfc3355c4117612e183f5147dad49c8132841c7fdd7a4508531d820a9b90acc51
++  languageName: node
++  linkType: hard
++
+ "get-value@npm:^2.0.3, get-value@npm:^2.0.6":
+@@ -5101,2 +5181,9 @@ __metadata:
+ 
++"globals@npm:^15.11.0":
++  version: 15.15.0
++  resolution: "globals@npm:15.15.0"
++  checksum: a2a92199a112db00562a2f85eeef2a7e3943e171f7f7d9b17dfa9231e35fd612588f3c199d1509ab1757273467e413b08c80424cf6e399e96acdaf93deb3ee88
++  languageName: node
++  linkType: hard
++
+ "globby@npm:^11.1.0":
+@@ -5144,2 +5231,9 @@ __metadata:
+ 
++"globrex@npm:^0.1.2":
++  version: 0.1.2
++  resolution: "globrex@npm:0.1.2"
++  checksum: adca162494a176ce9ecf4dd232f7b802956bb1966b37f60c15e49d2e7d961b66c60826366dc2649093cad5a0d69970cfa8875bd1695b5a1a2f33dcd2aa88da3c
++  languageName: node
++  linkType: hard
++
+ "glogg@npm:^1.0.0":
+@@ -5685,2 +5779,9 @@ __metadata:
+ 
++"ignore@npm:^5.3.2":
++  version: 5.3.2
++  resolution: "ignore@npm:5.3.2"
++  checksum: 2acfd32a573260ea522ea0bfeff880af426d68f6831f973129e2ba7363f422923cf53aab62f8369cbf4667c7b25b6f8a3761b34ecdb284ea18e87a5262a865be
++  languageName: node
++  linkType: hard
++
+ "immutable@npm:^4.0.0":
+@@ -8030,2 +8131,9 @@ __metadata:
+ 
++"picomatch@npm:^4.0.2":
++  version: 4.0.3
++  resolution: "picomatch@npm:4.0.3"
++  checksum: 6817fb74eb745a71445debe1029768de55fd59a42b75606f478ee1d0dc1aa6e78b711d041a7c9d5550e042642029b7f373dc1a43b224c4b7f12d23436735dba0
++  languageName: node
++  linkType: hard
++
+ "pify@npm:^2.0.0":
+@@ -8982,2 +9090,9 @@ __metadata:
+ 
++"resolve-pkg-maps@npm:^1.0.0":
++  version: 1.0.0
++  resolution: "resolve-pkg-maps@npm:1.0.0"
++  checksum: 1012afc566b3fdb190a6309cc37ef3b2dcc35dff5fa6683a9d00cd25c3247edfbc4691b91078c97adc82a29b77a2660c30d791d65dab4fc78bfc473f60289977
++  languageName: node
++  linkType: hard
++
+ "resolve-url@npm:^0.2.1":
+@@ -9366,2 +9481,11 @@ __metadata:
+ 
++"semver@npm:^7.6.3":
++  version: 7.7.3
++  resolution: "semver@npm:7.7.3"
++  bin:
++    semver: bin/semver.js
++  checksum: f013a3ee4607857bcd3503b6ac1d80165f7f8ea94f5d55e2d3e33df82fce487aa3313b987abf9b39e0793c83c9fc67b76c36c067625141a9f6f704ae0ea18db2
++  languageName: node
++  linkType: hard
++
+ "send@npm:0.18.0":
+@@ -10441,2 +10565,13 @@ __metadata:
+ 
++"ts-declaration-location@npm:^1.0.6":
++  version: 1.0.7
++  resolution: "ts-declaration-location@npm:1.0.7"
++  dependencies:
++    picomatch: ^4.0.2
++  peerDependencies:
++    typescript: ">=4.0.0"
++  checksum: d1bfa610fae8175389af580f25e8aab5dd5c7fb8daf83560fa8d555da8ef03542dde8552a9c3d1fb4beaed8670db863083c61413846d91cb3e5caea6636e45f7
++  languageName: node
++  linkType: hard
++
+ "ts-loader@npm:^9.5.1":
+@@ -10507,2 +10642,3 @@ __metadata:
+     eslint: ^8.57.0
++    eslint-plugin-n: ^17.23.1
+     eslint-plugin-node: ^11.1.0
+@@ -10529,2 +10665,3 @@ __metadata:
+     typescript: ^5.3.3
++    uglify-js: ^3.19.3
+     util: ^0.12.5
+@@ -10641,2 +10778,11 @@ __metadata:
+ 
++"uglify-js@npm:^3.19.3":
++  version: 3.19.3
++  resolution: "uglify-js@npm:3.19.3"
++  bin:
++    uglifyjs: bin/uglifyjs
++  checksum: 7ed6272fba562eb6a3149cfd13cda662f115847865c03099e3995a0e7a910eba37b82d4fccf9e88271bb2bcbe505bb374967450f433c17fa27aa36d94a8d0553
++  languageName: node
++  linkType: hard
++
+ "unbox-primitive@npm:^1.0.0":

@@ -1,0 +1,126 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag
+        required: true
+      draft:
+        description: Mark as draft
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: tsl0922/ttyd
+          path: ttyd
+      - name: Patch ttyd
+        working-directory: ttyd
+        run: |
+          git apply -v ../patches/*.patch
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --no-install-suggests -y fontforge
+          FONT_FILE=SymbolsNerdFontMono-Regular.ttf
+          curl -sL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.tar.xz |
+          tar vxJ --directory=/tmp/ ${FONT_FILE}
+          fontforge -lang=ff -c 'Open($1);Generate($2)' /tmp/${FONT_FILE} ./html/src/style/${FONT_FILE%.*}.woff2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install dependencies
+        working-directory: ttyd/html
+        run: |
+          corepack enable
+          corepack prepare yarn@stable --activate
+          yarn install
+          yarn run check
+      - name: Patch dependencies
+        working-directory: ttyd/html
+        run: |
+          FILE=node_modules/@xterm/xterm/lib/xterm.js
+          echo ---
+          echo "* $FILE"
+          grep "$FILE" -m1 -oe 'this\.dimensions\.device\.char\.width=this\._charSizeService\.width\*[^,]\+,' &&
+          sed "$FILE" -i -e 's@=\(this\._charSizeService\.width\*[^,]\+\)@=Math.floor(\1)@'
+          echo "* $FILE patched"
+          grep "$FILE" -m1 -oe 'this\.dimensions\.device\.char\.width=Math.floor(this\._charSizeService\.width\*[^,]\+),'
+          echo ---
+          echo "* $FILE"
+          grep "$FILE" -m1 -oe 'css:"rgba(255, 255, 255, 0.3)",rgba:4294967117' &&
+          sed "$FILE" -i -e 's@css:"rgba(255, 255, 255, 0\.3)",rgba:4294967117@css:"#fff3",rgba:0xffffff33@'
+          echo "* $FILE patched"
+          grep "$FILE" -m1 -oe 'css:"#fff3",rgba:0xffffff33'
+          echo ---
+          FILE=node_modules/@xterm/xterm/css/xterm.css
+          echo "* $FILE"
+          grep "$FILE" -e '-ms-user-select' &&
+          sed "$FILE" -i -e '/-ms-user-select/d'
+          echo "* $FILE patched"
+          grep "$FILE" -e '-ms-user-select' || true
+          echo ---
+      - name: Build frontend
+        working-directory: ttyd/html
+        run: yarn run build
+      - name: Create tar
+        run: tar cf ttyd.tar ttyd/
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ttyd-repo
+          path: ttyd.tar
+
+  backend:
+    needs: [frontend]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [i686, x86_64, arm, armhf, aarch64, mips, mipsel, mips64, mips64el, s390x, win32]
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: ttyd-repo
+      - name: Extract from tar
+        run: |
+          tar xf ttyd.tar --strip-components=1
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --no-install-suggests -y autoconf automake build-essential cmake curl file libtool
+      - name: Cross build (${{ matrix.target }})
+        env:
+          BUILD_TARGET: ${{ matrix.target }}
+        run: ./scripts/cross-build.sh
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ttyd.${{ matrix.target }}
+          path: build/ttyd*
+
+  release:
+    needs: [backend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v7
+      - run: |
+          mkdir build
+          for file in ttyd.*/*; do
+            target=$(echo $file | awk -F/ '{print $1}')
+            [[ $file == *.exe ]] && target="$target.exe"
+            mv $file build/$target
+          done
+          pushd build
+          sha256sum ttyd.* > SHA256SUMS
+          popd
+      - uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ inputs.tag }}
+          commit: ${{ env.GITHUB_WORKFLOW_SHA }}
+          draft: ${{ inputs.draft }}
+          artifacts: build/*
