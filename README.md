@@ -6,9 +6,11 @@ This repository is used to customize and build [ttyd](https://github.com/tsl0922
 - Better dark mode support by preventing white flash when loading
 - Allowing background transparency
 - Embedded [Nerd Font](https://github.com/ryanoasis/nerd-fonts) (symbols only)
+- Embedded [UbuntuMono-Bront](https://github.com/chrismwendt/bront) font
 - Enabling HTTP caching, making it load faster when revisited
 
 ## Credits
 - https://github.com/tsl0922/ttyd
 - https://github.com/tabler/tabler-icons
 - https://github.com/ryanoasis/nerd-fonts
+- https://github.com/chrismwendt/bront

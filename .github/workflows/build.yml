@@ -30,8 +30,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends --no-install-suggests -y fontforge
           FONT_FILE=SymbolsNerdFontMono-Regular.ttf
-          curl -sL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.tar.xz |
+          wget -O- https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.tar.xz |
           tar vxJ --directory=/tmp/ ${FONT_FILE}
+          fontforge -lang=ff -c 'Open($1);Generate($2)' /tmp/${FONT_FILE} ./html/src/style/${FONT_FILE%.*}.woff2
+          FONT_FILE=UbuntuMono-Bront.ttf
+          wget -O /tmp/${FONT_FILE} https://github.com/necaran/bront/raw/refs/heads/master/UbuntuMono-Bront.ttf
           fontforge -lang=ff -c 'Open($1);Generate($2)' /tmp/${FONT_FILE} ./html/src/style/${FONT_FILE%.*}.woff2
       - uses: actions/setup-node@v6
         with:

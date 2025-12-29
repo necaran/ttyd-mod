@@ -1,5 +1,5 @@
 diff --git a/html/src/components/app.tsx b/html/src/components/app.tsx
-index 52cf411..c7276ce 100644
+index 52cf411..a2f4ea2 100644
 --- a/html/src/components/app.tsx
 +++ b/html/src/components/app.tsx
 @@ -23,7 +23,9 @@ const clientOptions = {
@@ -7,7 +7,7 @@ index 52cf411..c7276ce 100644
 -    fontSize: 13,
 -    fontFamily: 'Consolas,Liberation Mono,Menlo,Courier,monospace',
 +    allowTransparency: true,
-+    fontFamily: '_,monospace',
++    fontFamily: '_,M,monospace',
 +    fontSize: 16,
 +    lineHeight: 1.125,
      theme: {
@@ -62,10 +62,10 @@ index b332154..efbb108 100644
 +                        }
                          terminal.options[key] = Object.assign({}, terminal.options[key], value);
 diff --git a/html/src/style/index.scss b/html/src/style/index.scss
-index 0f9244b..4d45e2e 100644
+index 0f9244b..3c83cfa 100644
 --- a/html/src/style/index.scss
 +++ b/html/src/style/index.scss
-@@ -13,6 +13,17 @@ body {
+@@ -13,6 +13,22 @@ body {
    padding: 0;
 -  .terminal {
 -    padding: 5px;
@@ -81,6 +81,11 @@ index 0f9244b..4d45e2e 100644
 +html {
 +  color-scheme: dark;
 +  margin-right: -15px;
++}
++
++@font-face {
++  font-family: M;
++  src: url(UbuntuMono-Bront.woff2) format(WOFF2);
 +}
 +
 +@font-face {
